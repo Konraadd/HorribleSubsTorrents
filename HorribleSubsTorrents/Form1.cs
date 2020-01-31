@@ -51,7 +51,7 @@ namespace HorribleSubsTorrents
                 progressBar1.PerformStep();
             }
             AnimeManager.SaveAnimes(updatedAnimeInfo);
-            UTorrentManager torrentManager = new UTorrentManager("admin", "Irtkan123");
+            UTorrentManager torrentManager = new UTorrentManager();
             // update max value for progress bar
             progressBar1.Maximum = progressBar1.Maximum - animesInfo.Count + newEpisodes.Count;
             foreach (Episode ep in newEpisodes) {
@@ -65,7 +65,7 @@ namespace HorribleSubsTorrents
 
         private void newToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            NewAnimePrompt.showNewAnimeDialog();
+            Prompts.showNewAnimeDialog();
             // load updated animes to list view
             loadAnimesToList(AnimeManager.ReadAllAnime());
         }
@@ -97,6 +97,13 @@ namespace HorribleSubsTorrents
             }
             listView1.View = View.Details;
             return;
+        }
+
+        private void configureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UTorrentConfiguration config = new UTorrentConfiguration();
+            config.readCredentials();
+            Prompts.showUTorrentConfigurationDialog(config.username, config.password);
         }
     }
 }

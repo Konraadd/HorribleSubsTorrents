@@ -8,6 +8,8 @@ using System.Net;
 using System.Net.Http;
 using System.IO;
 using System.Web;
+using System.Xml.Serialization;
+
 
 namespace HorribleSubsTorrents
 {
@@ -17,10 +19,12 @@ namespace HorribleSubsTorrents
         NetworkCredential credentials;
 
 
-        public UTorrentManager(string username, string password, string api_url = "http://localhost:8080/gui")
+        public UTorrentManager(string api_url = "http://localhost:8080/gui")
         {
             this.utorrent_api_url = api_url;
-            this.credentials = new NetworkCredential(username, password);
+            UTorrentConfiguration config = new UTorrentConfiguration();
+            config.readCredentials();
+            this.credentials = new NetworkCredential(config.username, config.password);
             this.setTokenAndCookie();
         }
 
@@ -33,14 +37,15 @@ namespace HorribleSubsTorrents
             request.Credentials = credentials;
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream)) {
+            using (StreamReader reader = new StreamReader(stream))
+            {
                 string httpResponse = reader.ReadToEnd();
                 Regex rgx = new Regex(@">(?!<).+<\/d");
                 token = rgx.Match(httpResponse).Value;
                 token = token.Substring(1, token.Length - 4);
                 Regex cookie_rgx = new Regex(@"GUID=.+;");
                 cookie = cookie_rgx.Match(response.Headers.ToString()).Value;
-                cookie = cookie.Substring(5, cookie.Length - 6); 
+                cookie = cookie.Substring(5, cookie.Length - 6);
             }
             this.cookie = cookie;
             this.token = token;
@@ -50,7 +55,7 @@ namespace HorribleSubsTorrents
         {
             torrentUrl = WebUtility.UrlEncode(torrentUrl);
             string url = this.utorrent_api_url + "/?token=" + this.token + "&action=add-url&s=" + torrentUrl;
-            
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Credentials = this.credentials;
             CookieContainer container = new CookieContainer();
@@ -63,7 +68,9 @@ namespace HorribleSubsTorrents
             {
                 string httpResponse = reader.ReadToEnd();
                 Console.WriteLine(httpResponse);
-                }
+            }
         }
+
+
     }
 }

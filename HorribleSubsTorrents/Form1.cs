@@ -72,7 +72,15 @@ namespace HorribleSubsTorrents
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            listView1.Items.RemoveAt(listView1.SelectedIndices[0]);
+            try
+            {
+                listView1.Items.RemoveAt(listView1.SelectedIndices[0]);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // clicked somewhere random on the list i guess?
+                return;
+            }
             // save the newly modified list to memomory
             AnimeManager.SaveAnimes(loadAnimesFromList());
         }
@@ -89,6 +97,9 @@ namespace HorribleSubsTorrents
 
         private void loadAnimesToList(List<AnimeInfo> animeInfos)
         {
+            if (animeInfos == null)
+                return;
+
             listView1.Items.Clear();
             foreach (AnimeInfo info in animeInfos)
             {

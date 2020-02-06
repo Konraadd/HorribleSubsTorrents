@@ -13,7 +13,13 @@ namespace HorribleSubsTorrents
         public static List<AnimeInfo> ReadAllAnime()
         {
             List<AnimeInfo> animeList = new List<AnimeInfo>();
-            Stream stream = File.Open("Animes.xml", FileMode.Open);
+            Stream stream = File.Open("Animes.xml", FileMode.OpenOrCreate);
+            // if animes.xml file is empty, dont attempt to load it and return empty list
+            if (stream.Length == 0)
+            {
+                stream.Close();
+                return animeList;
+            }
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<AnimeInfo>));
             animeList = (List<AnimeInfo>) xmlSerializer.Deserialize(stream);
             stream.Close();
@@ -31,7 +37,7 @@ namespace HorribleSubsTorrents
 
         public static void AddAnime(AnimeInfo anime)
         {
-            List<AnimeInfo> animes= ReadAllAnime();
+            List<AnimeInfo> animes = ReadAllAnime();
             animes.Add(anime);
             SaveAnimes(animes);
         }

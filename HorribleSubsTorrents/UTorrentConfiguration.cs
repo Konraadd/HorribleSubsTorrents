@@ -20,15 +20,15 @@ namespace HorribleSubsTorrents
         public void readCredentials()
         {
             Stream stream = File.Open("Credentials.xml", FileMode.OpenOrCreate);
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(UTorrentConfiguration));
-            try
+            if (stream.Length <= 0)
             {
-                UTorrentConfiguration creds = (UTorrentConfiguration) xmlSerializer.Deserialize(stream);
-                this.username = creds.username;
-                this.password = creds.password;
-            } catch (InvalidOperationException ex) {
-
+                stream.Close();
+                return;
             }
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(UTorrentConfiguration));
+            UTorrentConfiguration creds = (UTorrentConfiguration) xmlSerializer.Deserialize(stream);
+            this.username = creds.username;
+            this.password = creds.password;
             stream.Close();
         }
 

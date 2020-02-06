@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 using System.Windows.Forms;
 
 
@@ -36,6 +36,25 @@ namespace HorribleSubsTorrents
             if (result == DialogResult.OK)
             {
                 int latest_dowloaded;
+                try
+                {
+                    latest_dowloaded = int.Parse(textBoxLatestDownloadedEpisode.Text);
+                }
+                catch(FormatException)
+                {
+                    MessageBox.Show("Incorrect number for latest downloaded episode!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                try
+                {
+                    WebRequest.Create(textBoxUrl.Text);
+
+                }
+                catch (UriFormatException) {
+                    MessageBox.Show("Incorrect Url!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 if (int.TryParse(textBoxLatestDownloadedEpisode.Text, out latest_dowloaded)) {
                     AnimeInfo info = new AnimeInfo(textBoxUrl.Text, latest_dowloaded);
                     AnimeManager.AddAnime(info);

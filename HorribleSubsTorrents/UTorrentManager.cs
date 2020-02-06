@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Net;
-using System.Net.Http;
 using System.IO;
-using System.Web;
-using System.Xml.Serialization;
+using System.Windows.Forms;
 
 
 namespace HorribleSubsTorrents
@@ -35,20 +29,26 @@ namespace HorribleSubsTorrents
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.Credentials = credentials;
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                string httpResponse = reader.ReadToEnd();
-                Regex rgx = new Regex(@">(?!<).+<\/d");
-                token = rgx.Match(httpResponse).Value;
-                token = token.Substring(1, token.Length - 4);
-                Regex cookie_rgx = new Regex(@"GUID=.+;");
-                cookie = cookie_rgx.Match(response.Headers.ToString()).Value;
-                cookie = cookie.Substring(5, cookie.Length - 6);
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string httpResponse = reader.ReadToEnd();
+                    Regex rgx = new Regex(@">(?!<).+<\/d");
+                    token = rgx.Match(httpResponse).Value;
+                    token = token.Substring(1, token.Length - 4);
+                    Regex cookie_rgx = new Regex(@"GUID=.+;");
+                    cookie = cookie_rgx.Match(response.Headers.ToString()).Value;
+                    cookie = cookie.Substring(5, cookie.Length - 6);
+                }
+                this.cookie = cookie;
+                this.token = token;
+            } catch (WebException)
+            {
+                MessageBox.Show("Can't connect to uTorrent API!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            this.cookie = cookie;
-            this.token = token;
         }
 
         public void AddTorrent(string torrentUrl)

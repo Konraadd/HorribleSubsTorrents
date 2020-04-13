@@ -13,11 +13,11 @@ namespace HorribleSubsTorrents
         NetworkCredential credentials;
 
 
-        public UTorrentManager(string api_url = "http://localhost:8080/gui")
+        public UTorrentManager()
         {
-            this.utorrent_api_url = api_url;
             UTorrentConfiguration config = new UTorrentConfiguration();
             config.readCredentials();
+            this.utorrent_api_url = "http://localhost:" + config.port.ToString() +"/gui";
             this.credentials = new NetworkCredential(config.username, config.password);
             this.setTokenAndCookie();
         }

@@ -13,6 +13,7 @@ namespace HorribleSubsTorrents
     {
         public string password { get; set; }
         public string username { get; set; }
+        public int port { get; set; }
 
         // needed for serialization
         public UTorrentConfiguration() { }
@@ -29,14 +30,16 @@ namespace HorribleSubsTorrents
             UTorrentConfiguration creds = (UTorrentConfiguration) xmlSerializer.Deserialize(stream);
             this.username = creds.username;
             this.password = creds.password;
+            this.port = (creds.port == 0)? 8080 : creds.port;
             stream.Close();
         }
 
-        public static void saveCredentials(string username, string password)
+        public static void saveCredentials(string username, string password, int port)
         {
             UTorrentConfiguration config = new UTorrentConfiguration();
             config.password = password;
             config.username = username;
+            config.port = port;
             Stream stream = File.Open("Credentials.xml", FileMode.Create);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(UTorrentConfiguration));
             xmlSerializer.Serialize(stream, config);

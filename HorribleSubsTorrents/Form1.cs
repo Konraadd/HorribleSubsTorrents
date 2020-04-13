@@ -40,13 +40,15 @@ namespace HorribleSubsTorrents
             foreach (AnimeInfo info in animesInfo)
             {
                 int latest_ep = info.latestDownloadedEpisode;
+                DateTime last_download_date = info.lastDownloadedDate;
                 LinkedList<Episode> temp = EpisodesReader.ReadEpisodes(info.url, info.latestDownloadedEpisode);
                 // if new episodes were found, update latest downloaded
                 if (temp.Count > 0)
                 {
                     latest_ep = temp.First().number;
+                    last_download_date = DateTime.Now;
                 }
-                updatedAnimeInfo.Add(new AnimeInfo(info.url, latest_ep));
+                updatedAnimeInfo.Add(new AnimeInfo(info.url, latest_ep, last_download_date));
                 newEpisodes.AddRange(temp);
                 progressBar1.PerformStep();
             }
@@ -90,7 +92,11 @@ namespace HorribleSubsTorrents
             List<AnimeInfo> animeList = new List<AnimeInfo>();
             foreach (ListViewItem item in listView1.Items)
             {
-                animeList.Add(new AnimeInfo(item.SubItems[0].Text, int.Parse(item.SubItems[1].Text)));
+                DateTime last_download_time;
+                if (!DateTime.TryParse(item.SubItems[2].Text, out last_download_time)) {
+                    last_download_time = DateTime.MinValue;
+                }
+                animeList.Add(new AnimeInfo(item.SubItems[0].Text, int.Parse(item.SubItems[1].Text), last_download_time));
             }
             return animeList;
         }
@@ -101,9 +107,15 @@ namespace HorribleSubsTorrents
                 return;
 
             listView1.Items.Clear();
+            animeInfos.Sort();
             foreach (AnimeInfo info in animeInfos)
             {
-                string[] temp = { info.url, info.latestDownloadedEpisode.ToString() };
+                string last_download_date = (info.lastDownloadedDate == DateTime.MinValue) ? "" : info.lastDownloadedDate.ToLongDateString();
+                string[] temp = {
+                    info.url,
+                    info.latestDownloadedEpisode.ToString(),
+                    last_download_date
+                };
                 listView1.Items.Add(new ListViewItem(temp));
             }
             listView1.View = View.Details;
@@ -114,7 +126,17 @@ namespace HorribleSubsTorrents
         {
             UTorrentConfiguration config = new UTorrentConfiguration();
             config.readCredentials();
-            Prompts.showUTorrentConfigurationDialog(config.username, config.password);
+            Prompts.showUTorrentConfigurationDialog(config.username, config.password, config.port.ToString());
+        }
+
+        private void uTorrentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
